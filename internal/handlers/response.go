@@ -3,10 +3,9 @@ package handlers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
-func sendError(context *gin.Context, code int, msg string) {
+func SendError(context *gin.Context, code int, msg string) {
 	context.Header("Content-Type", "application/json")
 	context.JSON(code, gin.H{
 		"massage": msg,
@@ -14,10 +13,10 @@ func sendError(context *gin.Context, code int, msg string) {
 	})
 }
 
-func sendSuccess(context *gin.Context, op string, data interface{}) {
+func SendSuccess(context *gin.Context, op string, data interface{}, code int) {
 	context.Header("Content-Type", "application/json")
-	context.JSON(http.StatusOK, gin.H{
-		"massage": fmt.Sprintf("operation %s successfull", op),
+	context.JSON(code, gin.H{
+		"massage": fmt.Sprintf("operation %s successfully", op),
 		"data":    data,
 	})
 }

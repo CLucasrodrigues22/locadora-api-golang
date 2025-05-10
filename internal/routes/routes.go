@@ -13,6 +13,7 @@ func initializeRoutes(router *gin.Engine) {
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/", handlers.DashboardHandler)
+		BrandsRoutes(v1)
 	}
 
 	logger.Infof("Server started on port %s", utils.GetEnv("PORT"))

@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	db     *gorm.DB
+	Db     *gorm.DB
 	logger *logs.Logger
 )
 
 func InitHandler() {
 	logger = utils.GetLogger("handler")
-	db = configs.GetDB()
+	Db = configs.GetDB()
 }

@@ -24,10 +24,11 @@ type BrandResponse struct {
 
 type BrandPayload struct {
 	Name string                `form:"name" binding:"required"`
-	Icon *multipart.FileHeader `form:"icon" binding:"required"`
+	Icon *multipart.FileHeader `form:"icon" binding:"omitempty"`
 }
 
 type ListBrandsResponse struct {
-	Message string          `json:"message"`
 	Data    []BrandResponse `json:"data"`
+	Status  int             `json:"status"`
+	Message string          `json:"message"`
 }
