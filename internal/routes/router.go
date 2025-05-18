@@ -7,10 +7,8 @@ import (
 
 var logger *logs.Logger
 
-func InitializeRouter(l *logs.Logger) {
+func InitializeRouter(l *logs.Logger, router *gin.Engine) {
 	logger = l
-
-	router := gin.Default()
 
 	initializeRoutes(router)
 }

@@ -1,4 +1,4 @@
-package utils
+package common
 
 import (
 	"context"
@@ -6,21 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/joho/godotenv"
-	"os"
 )
-
-func GetEnv(variable string) string {
-	logger := GetLogger("Get .Env variables")
-
-	err := godotenv.Load()
-
-	if err != nil {
-		logger.Errorf("Env file not found: %v", err)
-	}
-
-	return os.Getenv(variable)
-}
 
 func GetLogger(pfx string) *logs.Logger {
 	logger := logs.NewLogger(pfx)

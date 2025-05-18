@@ -2,22 +2,22 @@ package configs
 
 import (
 	"fmt"
+	"github.com/CLucasrodrigues22/api-locadora/internal/common"
 	"github.com/CLucasrodrigues22/api-locadora/internal/schemas"
-	"github.com/CLucasrodrigues22/api-locadora/internal/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 var (
-	dbHost     = utils.GetEnv("DB_HOST")
-	dbPort     = utils.GetEnv("DB_PORT")
-	dbName     = utils.GetEnv("DB_NAME")
-	dbUser     = utils.GetEnv("DB_USER")
-	dbPassword = utils.GetEnv("DB_PASSWORD")
+	dbHost     = common.GetEnv("DB_HOST")
+	dbPort     = common.GetEnv("DB_PORT")
+	dbName     = common.GetEnv("DB_NAME")
+	dbUser     = common.GetEnv("DB_USER")
+	dbPassword = common.GetEnv("DB_PASSWORD")
 )
 
 func InitializeDB() (*gorm.DB, error) {
-	logger := utils.GetLogger("InitializeDB")
+	logger := common.GetLogger("InitializeDB")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		dbUser, dbPassword, dbHost, dbPort, dbName)

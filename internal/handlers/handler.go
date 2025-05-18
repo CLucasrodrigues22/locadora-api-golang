@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"github.com/CLucasrodrigues22/api-locadora/internal/common"
 	"github.com/CLucasrodrigues22/api-locadora/internal/configs"
 	"github.com/CLucasrodrigues22/api-locadora/internal/logs"
-	"github.com/CLucasrodrigues22/api-locadora/internal/utils"
 	"github.com/CLucasrodrigues22/api-locadora/pkg/contracts"
 	"github.com/gin-gonic/gin"
 
@@ -18,7 +18,7 @@ var (
 )
 
 func InitHandler() {
-	logger = utils.GetLogger("handler")
+	logger = common.GetLogger("handler")
 	Db = configs.GetDB()
 }
 
@@ -37,8 +37,8 @@ func UpdateFile(ctx *gin.Context, file *multipart.FileHeader, record contracts.H
 
 	oldIcon := record.GetImagePath()
 	if oldIcon != "" {
-		key := utils.ExtractKeyFromURL(oldIcon)
-		err := utils.DeleteFileStorage(key)
+		key := common.ExtractKeyFromURL(oldIcon)
+		err := common.DeleteFileStorage(key)
 		if err != nil {
 			logger.Errorf("Failed to delete old file: %v", err)
 			SendError(ctx, http.StatusInternalServerError, "Failed to delete old file")
@@ -61,9 +61,9 @@ func DeleteFile(ctx *gin.Context, record contracts.HasImage) error {
 		return nil
 	}
 
-	key := utils.ExtractKeyFromURL(icon)
+	key := common.ExtractKeyFromURL(icon)
 
-	if err := utils.DeleteFileStorage(key); err != nil {
+	if err := common.DeleteFileStorage(key); err != nil {
 		logger.Errorf("Failed to delete file: %v", err)
 		SendError(ctx, http.StatusInternalServerError, "Failed to delete file")
 		return err
@@ -86,7 +86,7 @@ func processFileUpload(ctx *gin.Context, file *multipart.FileHeader) (string, er
 		contentType = "application/octet-stream"
 	}
 
-	fileURL, err := utils.SaveFileStorage(fileReader, contentType)
+	fileURL, err := common.SaveFileStorage(fileReader, contentType)
 	if err != nil {
 		SendError(ctx, http.StatusInternalServerError, "Failed to upload file")
 		return "", err

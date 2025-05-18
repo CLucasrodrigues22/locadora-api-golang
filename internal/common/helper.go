@@ -1,14 +1,28 @@
-package utils
+package common
 
 import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"mime"
 	"net/url"
+	"os"
 	"strings"
 )
+
+func GetEnv(variable string) string {
+	logger := GetLogger("Get .Env variables")
+
+	err := godotenv.Load()
+
+	if err != nil {
+		logger.Errorf("Env file not found: %v", err)
+	}
+
+	return os.Getenv(variable)
+}
 
 func generateFileName(contentType string) string {
 	u := uuid.New().String()
