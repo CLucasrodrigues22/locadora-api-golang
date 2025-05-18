@@ -16,6 +16,15 @@ func CreateHandler(ctx *gin.Context) {
 		return
 	}
 
+	file, err := handlers.SaveFile(ctx, req.Icon)
+
+	if err != nil {
+		handlers.SendError(ctx, http.StatusInternalServerError, "Error during file upload")
+		return
+	}
+
+	req.Image = file
+
 	brand, err := brands.CreateBrand(req)
 
 	if err != nil {

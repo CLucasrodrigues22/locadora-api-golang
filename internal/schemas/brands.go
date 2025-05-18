@@ -23,12 +23,21 @@ type BrandResponse struct {
 }
 
 type BrandPayload struct {
-	Name string                `form:"name" binding:"required"`
-	Icon *multipart.FileHeader `form:"icon" binding:"omitempty"`
+	Name  string                `form:"name" binding:"required"`
+	Icon  *multipart.FileHeader `form:"icon" binding:"omitempty"`
+	Image string                `form:"-"`
 }
 
 type ListBrandsResponse struct {
 	Data    []BrandResponse `json:"data"`
 	Status  int             `json:"status"`
 	Message string          `json:"message"`
+}
+
+func (b *Brand) GetImagePath() string {
+	return b.Icon
+}
+
+func (b *Brand) SetImagePath(path string) {
+	b.Icon = path
 }

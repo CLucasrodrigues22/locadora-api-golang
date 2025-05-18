@@ -4,7 +4,12 @@ import (
 	"github.com/CLucasrodrigues22/api-locadora/internal/configs"
 	"github.com/CLucasrodrigues22/api-locadora/internal/logs"
 	"github.com/CLucasrodrigues22/api-locadora/internal/utils"
+	"github.com/CLucasrodrigues22/api-locadora/pkg/contracts"
+	"github.com/gin-gonic/gin"
+
 	"gorm.io/gorm"
+	"mime/multipart"
+	"net/http"
 )
 
 var (
@@ -15,4 +20,87 @@ var (
 func InitHandler() {
 	logger = utils.GetLogger("handler")
 	Db = configs.GetDB()
+}
+
+func SaveFile(ctx *gin.Context, file *multipart.FileHeader) (string, error) {
+	if file != nil {
+		fileReader, err := file.Open()
+		if err != nil {
+			SendError(ctx, http.StatusBadRequest, "Invalid file")
+			return "", err
+		}
+		defer fileReader.Close()
+
+		contentType := file.Header.Get("Content-Type")
+		if contentType == "" {
+			contentType = "application/octet-stream"
+		}
+
+		fileURL, err := utils.StorageFile(fileReader, contentType)
+		if err != nil {
+			SendError(ctx, http.StatusInternalServerError, "Failed to upload file")
+			return "", err
+		}
+
+		return fileURL, nil
+	}
+	return "", nil
+}
+
+func UpdateFile(ctx *gin.Context, file *multipart.FileHeader, record contracts.HasImage) (string, error) {
+	if file == nil {
+		return record.GetImagePath(), nil
+	}
+
+	oldIcon := record.GetImagePath()
+	if oldIcon != "" {
+		key := utils.ExtractKeyFromURL(oldIcon)
+
+		err := utils.DeleteFileStorage(key)
+		if err != nil {
+			logger.Error("Failed to delete old file: %v", err)
+			SendError(ctx, http.StatusInternalServerError, "Failed to delete old file")
+			return "", err
+		}
+	}
+
+	fileReader, err := file.Open()
+	if err != nil {
+		SendError(ctx, http.StatusBadRequest, "Invalid file")
+		return "", err
+	}
+	defer fileReader.Close()
+
+	contentType := file.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	fileURL, err := utils.StorageFile(fileReader, contentType)
+	if err != nil {
+		SendError(ctx, http.StatusInternalServerError, "Failed to upload file")
+		return "", err
+	}
+
+	record.SetImagePath(fileURL)
+
+	return fileURL, nil
+}
+
+func DeleteFile(ctx *gin.Context, record contracts.HasImage) error {
+	icon := record.GetImagePath()
+	if icon == "" {
+		return nil
+	}
+
+	key := utils.ExtractKeyFromURL(icon)
+
+	if err := utils.DeleteFileStorage(key); err != nil {
+		logger.Errorf("Failed to delete file: %v", err)
+		SendError(ctx, http.StatusInternalServerError, "Failed to delete file")
+		return err
+	}
+
+	record.SetImagePath("")
+	return nil
 }

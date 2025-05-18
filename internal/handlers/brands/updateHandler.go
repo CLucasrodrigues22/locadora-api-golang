@@ -10,6 +10,8 @@ import (
 	"net/http"
 )
 
+var brand schemas.Brand
+
 func UpdateHandler(ctx *gin.Context) {
 	req := schemas.BrandPayload{}
 
@@ -18,14 +20,26 @@ func UpdateHandler(ctx *gin.Context) {
 	}
 
 	id := ctx.Param("id")
-
 	if id == "" {
 		handlers.SendError(ctx, http.StatusBadRequest, "Brand not found")
 		return
 	}
 
-	brand, err := brands.UpdateBrand(id, &req)
+	var brand schemas.Brand
+	if err := handlers.Db.First(&brand, id).Error; err != nil {
+		handlers.SendError(ctx, http.StatusNotFound, "Brand not found")
+		return
+	}
 
+	file, err := handlers.UpdateFile(ctx, req.Icon, &brand)
+	if err != nil {
+		handlers.SendError(ctx, http.StatusBadRequest, "Error uploading file")
+		return
+	}
+
+	req.Image = file
+
+	schema, err := brands.UpdateBrand(id, &req)
 	if err != nil {
 		if errors.Is(err, brands.ErrBrandNotFound) {
 			handlers.SendError(ctx, http.StatusNotFound, "Brand not found")
@@ -35,5 +49,5 @@ func UpdateHandler(ctx *gin.Context) {
 		return
 	}
 
-	handlers.SendSuccess(ctx, "Brand updated", brand, http.StatusOK)
+	handlers.SendSuccess(ctx, "Brand updated", schema, http.StatusOK)
 }

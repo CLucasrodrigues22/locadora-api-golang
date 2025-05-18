@@ -19,6 +19,7 @@ func UpdateBrand(id string, req *schemas.BrandPayload) (*schemas.BrandResponse, 
 	}
 
 	brand.Name = req.Name
+	brand.Icon = req.Image
 
 	if err := handlers.Db.Save(brand).Error; err != nil {
 		return nil, err

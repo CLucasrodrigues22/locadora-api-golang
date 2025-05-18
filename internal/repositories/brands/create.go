@@ -9,7 +9,7 @@ import (
 func CreateBrand(req schemas.BrandPayload) (*schemas.BrandResponse, error) {
 	brand := schemas.Brand{
 		Name: req.Name,
-		Icon: "Icon/brand",
+		Icon: req.Image,
 	}
 
 	if err := handlers.Db.Create(&brand).Error; err != nil {
