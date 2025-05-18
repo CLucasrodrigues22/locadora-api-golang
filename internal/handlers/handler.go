@@ -23,28 +23,11 @@ func InitHandler() {
 }
 
 func SaveFile(ctx *gin.Context, file *multipart.FileHeader) (string, error) {
-	if file != nil {
-		fileReader, err := file.Open()
-		if err != nil {
-			SendError(ctx, http.StatusBadRequest, "Invalid file")
-			return "", err
-		}
-		defer fileReader.Close()
-
-		contentType := file.Header.Get("Content-Type")
-		if contentType == "" {
-			contentType = "application/octet-stream"
-		}
-
-		fileURL, err := utils.StorageFile(fileReader, contentType)
-		if err != nil {
-			SendError(ctx, http.StatusInternalServerError, "Failed to upload file")
-			return "", err
-		}
-
-		return fileURL, nil
+	if file == nil {
+		return "", nil
 	}
-	return "", nil
+
+	return processFileUpload(ctx, file)
 }
 
 func UpdateFile(ctx *gin.Context, file *multipart.FileHeader, record contracts.HasImage) (string, error) {
@@ -55,35 +38,20 @@ func UpdateFile(ctx *gin.Context, file *multipart.FileHeader, record contracts.H
 	oldIcon := record.GetImagePath()
 	if oldIcon != "" {
 		key := utils.ExtractKeyFromURL(oldIcon)
-
 		err := utils.DeleteFileStorage(key)
 		if err != nil {
-			logger.Error("Failed to delete old file: %v", err)
+			logger.Errorf("Failed to delete old file: %v", err)
 			SendError(ctx, http.StatusInternalServerError, "Failed to delete old file")
 			return "", err
 		}
 	}
 
-	fileReader, err := file.Open()
+	fileURL, err := processFileUpload(ctx, file)
 	if err != nil {
-		SendError(ctx, http.StatusBadRequest, "Invalid file")
-		return "", err
-	}
-	defer fileReader.Close()
-
-	contentType := file.Header.Get("Content-Type")
-	if contentType == "" {
-		contentType = "application/octet-stream"
-	}
-
-	fileURL, err := utils.StorageFile(fileReader, contentType)
-	if err != nil {
-		SendError(ctx, http.StatusInternalServerError, "Failed to upload file")
 		return "", err
 	}
 
 	record.SetImagePath(fileURL)
-
 	return fileURL, nil
 }
 
@@ -103,4 +71,26 @@ func DeleteFile(ctx *gin.Context, record contracts.HasImage) error {
 
 	record.SetImagePath("")
 	return nil
+}
+
+func processFileUpload(ctx *gin.Context, file *multipart.FileHeader) (string, error) {
+	fileReader, err := file.Open()
+	if err != nil {
+		SendError(ctx, http.StatusBadRequest, "Invalid file")
+		return "", err
+	}
+	defer fileReader.Close()
+
+	contentType := file.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	fileURL, err := utils.SaveFileStorage(fileReader, contentType)
+	if err != nil {
+		SendError(ctx, http.StatusInternalServerError, "Failed to upload file")
+		return "", err
+	}
+
+	return fileURL, nil
 }
