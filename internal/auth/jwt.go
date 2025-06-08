@@ -1,13 +1,18 @@
 package auth
 
 import (
-	"github.com/CLucasrodrigues22/api-locadora/internal/common"
+	"github.com/CLucasrodrigues22/api-locadora/internal/logs"
 	"github.com/CLucasrodrigues22/api-locadora/internal/schemas"
+	"github.com/CLucasrodrigues22/api-locadora/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
-var JwtKey = []byte(common.GetEnv("JWT_SECRET"))
+var (
+	logger *logs.Logger
+)
+
+var JwtKey = []byte(utils.GetEnv("JWT_SECRET", logger))
 
 func GenerateJWT(email string, name string) (string, error) {
 	expirationTime := time.Now().Add(time.Hour * 24)

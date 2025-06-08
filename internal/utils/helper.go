@@ -1,9 +1,10 @@
-package common
+package utils
 
 import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/CLucasrodrigues22/api-locadora/internal/logs"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"mime"
@@ -12,9 +13,7 @@ import (
 	"strings"
 )
 
-func GetEnv(variable string) string {
-	logger := GetLogger("Get .Env variables")
-
+func GetEnv(variable string, logger *logs.Logger) string {
 	err := godotenv.Load()
 
 	if err != nil {
@@ -24,7 +23,7 @@ func GetEnv(variable string) string {
 	return os.Getenv(variable)
 }
 
-func generateFileName(contentType string) string {
+func GenerateFileName(contentType string) string {
 	u := uuid.New().String()
 	hash := md5.Sum([]byte(u))
 	hashed := hex.EncodeToString(hash[:])

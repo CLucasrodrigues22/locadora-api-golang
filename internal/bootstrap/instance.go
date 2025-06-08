@@ -1,22 +1,27 @@
-package common
+package bootstrap
 
 import (
 	"context"
 	"github.com/CLucasrodrigues22/api-locadora/internal/logs"
+	"github.com/CLucasrodrigues22/api-locadora/internal/utils"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+var (
+	logger *logs.Logger
+)
+
 func GetLogger(pfx string) *logs.Logger {
-	logger := logs.NewLogger(pfx)
+	logger = logs.NewLogger(pfx)
 
 	return logger
 }
 
 func GetStorageConnection() *s3.Client {
-	accessKeyId := GetEnv("AWS_ACCESS_KEY_ID")
-	secretAccessKey := GetEnv("AWS_SECRET_ACCESS_KEY")
+	accessKeyId := utils.GetEnv("AWS_ACCESS_KEY_ID", logger)
+	secretAccessKey := utils.GetEnv("AWS_SECRET_ACCESS_KEY", logger)
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyId, secretAccessKey, "")),

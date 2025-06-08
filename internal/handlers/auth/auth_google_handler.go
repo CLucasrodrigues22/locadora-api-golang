@@ -4,19 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/CLucasrodrigues22/api-locadora/internal/auth"
+	"github.com/CLucasrodrigues22/api-locadora/internal/auth/services"
 	"github.com/CLucasrodrigues22/api-locadora/internal/schemas"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func GoogleLoginHandler(ctx *gin.Context) {
-	url := auth.GetGoogleLoginURL()
+	url := services.GetGoogleLoginURL()
 	ctx.Redirect(http.StatusTemporaryRedirect, url)
 }
 
 func GoogleCallbackHandler(ctx *gin.Context) {
 	state := ctx.Query("state")
-	if state != auth.OAuthStateString {
+	if state != services.OAuthStateString {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid OAuth state"})
 		return
 	}
@@ -27,13 +28,13 @@ func GoogleCallbackHandler(ctx *gin.Context) {
 		return
 	}
 
-	token, err := auth.GoogleOAuthConfig.Exchange(context.Background(), code)
+	token, err := services.GoogleOAuthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to exchange token"})
 		return
 	}
 
-	client := auth.GoogleOAuthConfig.Client(context.Background(), token)
+	client := services.GoogleOAuthConfig.Client(context.Background(), token)
 
 	res, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {

@@ -6,9 +6,12 @@ import (
 )
 
 func AuthRoutes(router *gin.RouterGroup) {
-	loginGroup := router.Group("/auth/google")
+	loginGroup := router.Group("/auth/sso")
 	{
-		loginGroup.GET("/login", auth.GoogleLoginHandler)
-		loginGroup.GET("/callback", auth.GoogleCallbackHandler)
+		// google sso
+		loginGroup.GET("/google/login", auth.GoogleLoginHandler)
+		loginGroup.GET("/google/callback", auth.GoogleCallbackHandler)
+
+		// local login
 	}
 }

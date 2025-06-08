@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/CLucasrodrigues22/api-locadora/internal/common"
+	"github.com/CLucasrodrigues22/api-locadora/internal/bootstrap"
 	"github.com/CLucasrodrigues22/api-locadora/internal/configs"
 	"github.com/CLucasrodrigues22/api-locadora/internal/logs"
 	"github.com/CLucasrodrigues22/api-locadora/internal/routes"
+	"github.com/CLucasrodrigues22/api-locadora/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +14,7 @@ var (
 )
 
 func main() {
-	logger = common.GetLogger("main")
+	logger = bootstrap.GetLogger("main")
 
 	err := configs.Init()
 
@@ -24,9 +25,9 @@ func main() {
 	router := gin.Default()
 	routes.InitializeRouter(logger, router)
 
-	logger.Infof("Server started on port %s", common.GetEnv("PORT"))
+	logger.Infof("Server started on port %s", utils.GetEnv("PORT", logger))
 
-	if err := router.Run(":" + common.GetEnv("PORT")); err != nil {
+	if err := router.Run(":" + utils.GetEnv("PORT", logger)); err != nil {
 		logger.Error("Failed to start the server: " + err.Error())
 	}
 }
